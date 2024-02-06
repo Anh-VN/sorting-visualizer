@@ -4,9 +4,9 @@ import { mergeSort, bubbleSort } from "../sortingAlgorithms/sortingAlgorithms";
 
 const SortingVisualizer = () => {
   const [array, setArray] = useState([]);
-  const [animationSpeed, setAnimationSpeed] = useState('slow');
+  const [animationSpeed, setAnimationSpeed] = useState('fast');
   const [sortAlgor, setSortAlgor] = useState('bubbleSort'); 
-  const [runningStatus, setRunningStatus] = useState(false);
+  const [runningStatus, setRunningStatus] = useState('new');
   const animationTimeoutsRef = useRef([]);
   useEffect(() => {
     setArray(randomArray());
@@ -38,6 +38,7 @@ const SortingVisualizer = () => {
 
   const handleRandomArray = () => {
     setArray(randomArray());
+    setRunningStatus('new');
   }
 
   function swap(array, i, j) {
@@ -92,7 +93,7 @@ const SortingVisualizer = () => {
 
           setArray(array.slice());
           if (lastSwap) {
-            setRunningStatus(false);
+            setRunningStatus('completed');
           }
         }, delayTime/2);
         animationTimeoutsRef.current.push(timeout);
@@ -118,18 +119,17 @@ const SortingVisualizer = () => {
     return element.background ? {...style, background: element.background} : style;
   }
   
-  const handleRunningStatus = () => {
-    let currentStatus = !runningStatus;
-    if (currentStatus) {
+  const handleRunningStatus = (status) => {
+    if (status === 'running') {
       handleBubbleSort();
-    } else {
+    } else if (status === 'stopped') {
       console.log('animationTimeouts', animationTimeoutsRef.current);
       animationTimeoutsRef.current.forEach((timeout) => {
         clearTimeout(timeout);
       })
       animationTimeoutsRef.current = [];
     }
-    setRunningStatus(currentStatus);
+    setRunningStatus(status);
   }
 
   const selectSortAlgorithms = () => {
@@ -144,40 +144,41 @@ const SortingVisualizer = () => {
               })}
         </div>
         {
-          runningStatus
+          runningStatus === 'running'
           ? <div className="ctrl-containter">
-            <button className="btn-stop" onClick={handleRunningStatus}>Stop</button>
+            <button className="btn-stop" onClick={() => handleRunningStatus('stopped')}>Stop</button>
           </div>
           : 
-          <div>
-            <div className="ctrl-containter">
-              <div>
-                <button className="btn-stop" onClick={handleRunningStatus}>Start</button>
-              </div>
-              <div className="radio-group-wrapper">
-                <p>Animation Speed:</p>
+          (<div className="ctrl-containter">
+            { runningStatus !== 'completed' &&
+              <>
                 <div>
-                  <input type="radio" id="speed_slow" name="speed" onChange={() => {setAnimationSpeed('slow')}} checked={animationSpeed === 'slow'}/>
-                  <label htmlFor="speed_slow">Slow</label>
+                  <button className="btn-stop" onClick={() => handleRunningStatus('running')}>Start</button>
                 </div>
-                <div>
-                  <input type="radio" id="speed_fast" name="speed" onChange={() => {setAnimationSpeed('fast')}} checked={animationSpeed === 'fast'}/>
-                  <label htmlFor="speed_fast">Fast</label>
+                <div className="radio-group-wrapper">
+                  <p>Animation Speed:</p>
+                  <div>
+                    <input type="radio" id="speed_slow" name="speed" onChange={() => {setAnimationSpeed('slow')}} checked={animationSpeed === 'slow'}/>
+                    <label htmlFor="speed_slow">Slow</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="speed_fast" name="speed" onChange={() => {setAnimationSpeed('fast')}} checked={animationSpeed === 'fast'}/>
+                    <label htmlFor="speed_fast">Fast</label>
+                  </div>
                 </div>
-              </div>
-              <div className="radio-group-wrapper">
-                <p>Sort Algorithms: </p>
-                <div onClick={() => {selectSortAlgorithms('bubbleSort')}}>
-                  <input type="radio" id="algor_bubble" name="algor" defaultChecked/>
-                  <label htmlFor="algor_bubble">Bubble Sort</label>
+                <div className="radio-group-wrapper">
+                  <p>Sort Algorithms: </p>
+                  <div onClick={() => {selectSortAlgorithms('bubbleSort')}}>
+                    <input type="radio" id="algor_bubble" name="algor" defaultChecked/>
+                    <label htmlFor="algor_bubble">Bubble Sort</label>
+                  </div>
                 </div>
-              </div>
+              </>}
 
-              <div className="button-group">
-                <button onClick={handleRandomArray}>Random a new array</button>
-              </div>
+            <div>
+              <button className="btn-random-array" onClick={handleRandomArray}>Random a new array</button>
             </div>
-          </div>
+          </div>)
         }
       </div>
   );
