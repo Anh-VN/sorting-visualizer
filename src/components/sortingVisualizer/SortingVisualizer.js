@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import './SortingVisualizer.css';
 import { mergeSort, bubbleSort } from "../sortingAlgorithms/sortingAlgorithms";
-import { toBeChecked } from "@testing-library/jest-dom/matchers";
 
 const SortingVisualizer = () => {
   const [array, setArray] = useState([]);
@@ -51,7 +50,7 @@ const SortingVisualizer = () => {
     array[i].background = color;
     array[j].background = color;
     array.forEach((element, index) => {
-      if (index !== i && index !== j && element.background != 'red') {
+      if (index !== i && index !== j && element.background !== 'red') {
         element.background = '';
       }
     })
@@ -68,7 +67,6 @@ const SortingVisualizer = () => {
   }
 
   function showAnimation(swappedIndexes) {
-    let completed = false;
     let delayTime = animationSpeed === 'slow' ? 500 : 10;
 
     let count = 0;
@@ -77,6 +75,7 @@ const SortingVisualizer = () => {
       let sortingTimes = swappedIndexes[i][0];
 
       let timeout = setTimeout(() => {
+        let lastSwap = i === swappedIndexes.length - 1;
         markSwapIndexes(array, index, index+1, 'yellow');   
         setArray(array.slice());
   
@@ -85,15 +84,14 @@ const SortingVisualizer = () => {
           markSwapIndexes(array, index, index+1, 'green');
 
 
-          if (i === swappedIndexes.length - 1) {
+          if (lastSwap) {
             markComplete(array, 'orange');
-            completed = true;
           } else if (isLastSwapOfSortingTimes(swappedIndexes, i)) {
             markSortedElement(array, array.length - 1 - sortingTimes, 'red');
           }
 
           setArray(array.slice());
-          if (completed) {
+          if (lastSwap) {
             setRunningStatus(false);
           }
         }, delayTime/2);
