@@ -63,6 +63,12 @@ const SortingVisualizer = () => {
     })
   }
 
+  function clearMarkColor(array) {
+    array.forEach((element) => {
+        element.background = '';
+    })
+  }
+
   function markSortedElement(array, i, color) {
     array[i].background = color;
   }
@@ -128,6 +134,7 @@ const SortingVisualizer = () => {
         clearTimeout(timeout);
       })
       animationTimeoutsRef.current = [];
+      clearMarkColor(array);
     }
     setRunningStatus(status);
   }
